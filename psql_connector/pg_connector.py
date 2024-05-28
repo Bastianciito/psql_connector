@@ -6,7 +6,6 @@ from psycopg2.extensions import register_adapter, AsIs
 import sys
 import numpy as np
 import pandas as pd
-import requests
 import sqlalchemy as sa
 
 

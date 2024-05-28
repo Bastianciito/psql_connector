@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "psql-connector"
-version = "0.1.1"
+version = "0.1.2"
 description = ""
 authors = ["Bastiancito <bastian.gamboa@ug.uchile.cl>"]
 readme = "README.md"
@@ -10,6 +10,7 @@ python = "^3.10"
 psycopg2-binary = "^2.9.9"
 numpy = "^1.26.4"
 pandas = "^2.2.2"
+sqlalchemy = "^2.0.30"
 
 
 [build-system]
