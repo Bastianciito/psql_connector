@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "psql-connector"
-version = "0.1.2"
+version = "0.1.3"
 description = ""
 authors = ["Bastiancito <bastian.gamboa@ug.uchile.cl>"]
 readme = "README.md"
