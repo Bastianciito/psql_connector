@@ -50,11 +50,10 @@ class PgConnector:
 
         if self.credentials is not None:
             try:
-                engine = sa.create_engine(
-                    f"postgresql+psycopg2://{self.credentials['user']}:{self.credentials['password']}@{self.credentials['host']}/{self.credentials['database']}"
+                self.engine = sa.create_engine(
+                    f"postgresql+psycopg2://{self.credentials['user']}:{self.credentials['password']}@{self.credentials['host']}:{self.credentials['port']}/{self.credentials['database']}"
                 )
-                engine.begin()
-                self.engine = engine
+                self.engine.begin()
             except:
                 logging.error(
                     "Credential params does not meet conditions, please make sure that the following values are available"
