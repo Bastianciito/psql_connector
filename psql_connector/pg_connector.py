@@ -51,7 +51,7 @@ class PgConnector:
         if self.credentials is not None:
             try:
                 engine = sa.create_engine(
-                    f"postgresql+psycopg2://{self.credentials['user']}:{self.credentials['password']}@{self.credentials['host']}/{self.credentials['dbname']}"
+                    f"postgresql+psycopg2://{self.credentials['user']}:{self.credentials['password']}@{self.credentials['host']}/{self.credentials['database']}"
                 )
                 engine.begin()
                 self.engine = engine
