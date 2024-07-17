@@ -134,14 +134,16 @@ class PgConnector:
                                 logging.error(e)
                                 logging.error("Element error")
                                 logging.error(error)
-                                sys.exit(1)
+                                pass
+                                # sys.exit(1)
             try:
                 execute_values(pgsql_cursor, insert_query, tpls)
 
             except (Exception, psycopg2.DatabaseError) as error:
                 logging.error(tpls)
                 logging.error(error)
-                sys.exit()
+                pass
+                # sys.exit()
 
         pgsql_cursor.close()
         self.conn.commit()
