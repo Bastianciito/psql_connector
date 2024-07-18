@@ -123,13 +123,14 @@ class PgConnector:
                 if ((it + 1) % 10) == 0:
                     try:
                         execute_values(pgsql_cursor, insert_query, tpls)
-                        logging.info("inserted values succes ! (at except)")
+                        logging.info("inserted values succes ! (at except) (chunk of 10)")
                         tpls = []
 
                     except:
                         for e in tpls:
                             try:
                                 execute_values(pgsql_cursor, insert_query, e)
+                                logging.info("inserted values succes ! (at except) (one value)")
                             except (Exception, psycopg2.DatabaseError) as error:
                                 logging.error(e)
                                 logging.error("Element error")
@@ -138,12 +139,17 @@ class PgConnector:
                                 # sys.exit(1)
             try:
                 execute_values(pgsql_cursor, insert_query, tpls)
-
-            except (Exception, psycopg2.DatabaseError) as error:
-                logging.error(tpls)
-                logging.error(error)
-                pass
-                # sys.exit()
+                logging.info("inserted values succes ! (at except) (rest values)")
+            except:
+                for e in tpls:
+                    try:
+                        execute_values(pgsql_cursor, insert_query, e)
+                        logging.info("inserted values succes ! (at except) (one value)")
+                    except (Exception, psycopg2.DatabaseError) as error:
+                        logging.error(e)
+                        logging.error("Element error")
+                        logging.error(error)
+                        pass
 
         pgsql_cursor.close()
         self.conn.commit()
