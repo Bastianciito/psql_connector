@@ -11,14 +11,22 @@ import sqlalchemy as sa
 
 class PgConnector:
 
-    # def addapt_numpy_float64(numpy_float64):
-    #     return AsIs(numpy_float64)
+    def addapt_numpy_float64(numpy_float64):
+        return AsIs(numpy_float64)
 
-    # def addapt_numpy_int64(numpy_int64):
-    #     return AsIs(numpy_int64)
+    def addapt_numpy_int64(numpy_int64):
+        return AsIs(numpy_int64)
 
-    # register_adapter(np.float64, addapt_numpy_float64)
-    # register_adapter(np.int64, addapt_numpy_int64)
+    def addapt_numpy_float32(numpy_float32):
+        return AsIs(numpy_float32)
+
+    def addapt_numpy_int32(numpy_int32):
+        return AsIs(numpy_int32)
+
+    register_adapter(np.float64, addapt_numpy_float64)
+    register_adapter(np.int64, addapt_numpy_int64)
+    register_adapter(np.float32, addapt_numpy_float32)
+    register_adapter(np.int32, addapt_numpy_int32)
 
     def __init__(self, credentials: dict = None, **kwargs) -> None:
         self.conn = None
@@ -123,14 +131,18 @@ class PgConnector:
                 if ((it + 1) % 10) == 0:
                     try:
                         execute_values(pgsql_cursor, insert_query, tpls)
-                        logging.info("inserted values succes ! (at except) (chunk of 10)")
+                        logging.info(
+                            "inserted values succes ! (at except) (chunk of 10)"
+                        )
                         tpls = []
 
                     except:
                         for e in tpls:
                             try:
                                 execute_values(pgsql_cursor, insert_query, e)
-                                logging.info("inserted values succes ! (at except) (one value)")
+                                logging.info(
+                                    "inserted values succes ! (at except) (one value)"
+                                )
                             except (Exception, psycopg2.DatabaseError) as error:
                                 logging.error(e)
                                 logging.error("Element error")
