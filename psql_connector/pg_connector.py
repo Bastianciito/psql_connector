@@ -7,26 +7,26 @@ import sys
 import numpy as np
 import pandas as pd
 import sqlalchemy as sa
-
+import traceback
 
 class PgConnector:
 
-    def addapt_numpy_float64(numpy_float64):
-        return AsIs(numpy_float64)
+    # def addapt_numpy_float64(numpy_float64):
+    #     return AsIs(numpy_float64)
 
-    def addapt_numpy_int64(numpy_int64):
-        return AsIs(numpy_int64)
+    # def addapt_numpy_int64(numpy_int64):
+    #     return AsIs(numpy_int64)
 
-    def addapt_numpy_float32(numpy_float32):
-        return AsIs(numpy_float32)
+    # def addapt_numpy_float32(numpy_float32):
+    #     return AsIs(numpy_float32)
 
-    def addapt_numpy_int32(numpy_int32):
-        return AsIs(numpy_int32)
+    # def addapt_numpy_int32(numpy_int32):
+    #     return AsIs(numpy_int32)
 
-    register_adapter(np.float64, addapt_numpy_float64)
-    register_adapter(np.int64, addapt_numpy_int64)
-    register_adapter(np.float32, addapt_numpy_float32)
-    register_adapter(np.int32, addapt_numpy_int32)
+    # register_adapter(np.float64, addapt_numpy_float64)
+    # register_adapter(np.int64, addapt_numpy_int64)
+    # register_adapter(np.float32, addapt_numpy_float32)
+    # register_adapter(np.int32, addapt_numpy_int32)
 
     def __init__(self, credentials: dict = None, **kwargs) -> None:
         self.conn = None
@@ -48,6 +48,7 @@ class PgConnector:
             except (Exception, psycopg2.DatabaseError) as error:
                 logging.error(error)
                 logging.error("It was not possible to connect to Database")
+                logging.error(traceback.format_exc())
 
         else:
             logging.warning(
@@ -66,6 +67,7 @@ class PgConnector:
                 logging.error(
                     "Credential params does not meet conditions, please make sure that the following values are available"
                 )
+                logging.error(traceback.format_exc())
         else:
             logging.warning(
                 "Credentials was not provider, set credentials atribute of PgConnector"
@@ -85,6 +87,7 @@ class PgConnector:
                 return df_
             except:
                 logging.error("Something goes wrong")
+                logging.error(traceback.format_exc())
                 sys.exit()
         else:
             logging.warning("SQL engine was not initialized")
@@ -104,6 +107,7 @@ class PgConnector:
         except (Exception, psycopg2.DatabaseError) as error:
             logging.error("Something happend")
             logging.error(error)
+            logging.error(traceback.format_exc())
             return None
 
     def execute_query_(self, query="", **kwargs):
@@ -117,6 +121,7 @@ class PgConnector:
         except (Exception, psycopg2.DatabaseError) as error:
             logging.error("Something happend")
             logging.error(error)
+            logging.error(traceback.format_exc())
             return False
 
     def insert_loop(self, data, insert_query, **kwargs):
@@ -147,6 +152,7 @@ class PgConnector:
                                 logging.error(e)
                                 logging.error("Element error")
                                 logging.error(error)
+                                logging.error(traceback.format_exc())
                                 pass
                                 # sys.exit(1)
             try:
@@ -161,6 +167,7 @@ class PgConnector:
                         logging.error(e)
                         logging.error("Element error")
                         logging.error(error)
+                        logging.error(traceback.format_exc())
                         pass
 
         pgsql_cursor.close()
