@@ -11,6 +11,7 @@ psycopg2-binary = "^2.9.9"
 numpy = "^1.26.4"
 pandas = "^2.2.2"
 sqlalchemy = "^2.0.30"
+black = "^24.10.0"
 
 
 [build-system]

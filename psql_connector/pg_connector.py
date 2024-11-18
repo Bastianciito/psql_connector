@@ -47,12 +47,14 @@ class PgConnector:
         )
 
     def paser_credentials_to_psycopg(self):
-
         return f"""user={self.credentials['PGUSER']} 
                     password={self.credentials['PGPASSWORD']} 
                     host={self.credentials['PGHOST']} 
                     port={self.credentials['PGPORT']} 
                     dbname={self.credentials['PGDATABASE']}"""
+
+    def parse_credentials_to_sqlalchemy(self):
+        return f"postgresql+psycopg2://{self.credentials['PGUSER']}:{self.credentials['PGPASSWORD']}@{self.credentials['PGHOST']}:{self.credentials['PGPORT']}/{self.credentials['PGDATABASE']}"
 
     def parse_credentials(self):
         if len(self.credentials.keys()) != 0:
@@ -97,9 +99,7 @@ class PgConnector:
 
         if self.credentials is not None:
             try:
-                self.engine = sa.create_engine(
-                    f"postgresql+psycopg2://{self.credentials['PGUSER']}:{self.credentials['PGPASSWORD']}@{self.credentials['PGHOST']}:{self.credentials['PGPORT']}/{self.credentials['PGDATABASE']}"
-                )
+                self.engine = sa.create_engine(self.parse_credentials_to_sqlalchemy())
                 self.engine.begin()
             except:
                 logging.error(
