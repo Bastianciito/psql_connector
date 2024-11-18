@@ -52,7 +52,7 @@ class PgConnector:
                     password={self.credentials['PGPASSWORD']} 
                     host={self.credentials['PGHOST']} 
                     port={self.credentials['PGPORT']} 
-                    database={self.credentials['PGDATABASE']}"""
+                    dbname={self.credentials['PGDATABASE']}"""
 
     def parse_credentials(self):
         if len(self.credentials.keys()) != 0:
