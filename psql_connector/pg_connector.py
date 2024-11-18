@@ -9,34 +9,64 @@ import pandas as pd
 import sqlalchemy as sa
 import traceback
 
+
 class PgConnector:
 
-    # def addapt_numpy_float64(numpy_float64):
-    #     return AsIs(numpy_float64)
+    def addapt_numpy_float64(numpy_float64):
+        return AsIs(numpy_float64)
 
-    # def addapt_numpy_int64(numpy_int64):
-    #     return AsIs(numpy_int64)
+    def addapt_numpy_int64(numpy_int64):
+        return AsIs(numpy_int64)
 
-    # def addapt_numpy_float32(numpy_float32):
-    #     return AsIs(numpy_float32)
+    def addapt_numpy_float32(numpy_float32):
+        return AsIs(numpy_float32)
 
-    # def addapt_numpy_int32(numpy_int32):
-    #     return AsIs(numpy_int32)
+    def addapt_numpy_int32(numpy_int32):
+        return AsIs(numpy_int32)
 
-    # register_adapter(np.float64, addapt_numpy_float64)
-    # register_adapter(np.int64, addapt_numpy_int64)
-    # register_adapter(np.float32, addapt_numpy_float32)
-    # register_adapter(np.int32, addapt_numpy_int32)
+    register_adapter(np.float64, addapt_numpy_float64)
+    register_adapter(np.int64, addapt_numpy_int64)
+    register_adapter(np.float32, addapt_numpy_float32)
+    register_adapter(np.int32, addapt_numpy_int32)
 
-    def __init__(self, credentials: dict = None, **kwargs) -> None:
+    def __init__(self, credentials: dict = {}, **kwargs) -> None:
         self.conn = None
         self.engine = None
         self.credentials = credentials
+        self.default_credentials = {
+            "PGHOST": "localhost",
+            "PGUSER": "postgres",
+            "PGPORT": "5432",
+            "PGDATABASE": "postgres",
+            "PGPASSWORD": "postgres",
+        }
 
     def help(self):
         print(
             """To create a conection first init the object with the following params .... """
         )
+
+    def parse_credentials(self):
+        if len(self.credentials.keys()) != 0:
+            intersection_condition = set(self.default_credentials.keys()).intersection(
+                set(self.credentials.keys())
+            )
+            if len(intersection_condition) > 0:
+                """overrrides default credential with new ones,
+                if the user fortget to put one
+                dafault values will be used"""
+                self.default_credentials = {
+                    **self.default_credentials,
+                    **self.credentials,
+                }
+
+                if len(intersection_condition) < len(self.default_credentials.keys()):
+                    logging.warning(
+                        "Some values were not provided, Therefore default values are going to be used for connection engine"
+                    )
+        else:
+            self.credentials = {**self.credentials, **self.default_credentials}
+            """fill with deafult variables"""
 
     def create_conn(self, **kwargs):
 
@@ -124,51 +154,63 @@ class PgConnector:
             logging.error(traceback.format_exc())
             return False
 
+    def parallel_insertions(self, data, insert_query, **kwargs):
+        """set the number of jobs"""
+        logging.error("Parrllel insertions is not suported")
+        pass
+
     def insert_loop(self, data, insert_query, **kwargs):
         pgsql_cursor = self.create_curs()
         tpls = []
-        try:
-            execute_values(pgsql_cursor, insert_query, data)
-            logging.info("inserted values succes !")
-        except:
-            for it, tpl in enumerate(data):
-                tpls.append(tpl)
-                if ((it + 1) % 10) == 0:
-                    try:
-                        execute_values(pgsql_cursor, insert_query, tpls)
-                        logging.info(
-                            "inserted values succes ! (at except) (chunk of 10)"
-                        )
-                        tpls = []
-
-                    except:
-                        for e in tpls:
-                            try:
-                                execute_values(pgsql_cursor, insert_query, e)
-                                logging.info(
-                                    "inserted values succes ! (at except) (one value)"
-                                )
-                            except (Exception, psycopg2.DatabaseError) as error:
-                                logging.error(e)
-                                logging.error("Element error")
-                                logging.error(error)
-                                logging.error(traceback.format_exc())
-                                pass
-                                # sys.exit(1)
+        if (kwargs["parallel"] is not None) and kwargs["parallel"]:
+            self.parallel_insertions(
+                {"data": data, "insert_query": insert_query, **kwargs}
+            )
+        else:
             try:
-                execute_values(pgsql_cursor, insert_query, tpls)
-                logging.info("inserted values succes ! (at except) (rest values)")
+                execute_values(pgsql_cursor, insert_query, data)
+                logging.info("inserted values succes !")
             except:
-                for e in tpls:
-                    try:
-                        execute_values(pgsql_cursor, insert_query, e)
-                        logging.info("inserted values succes ! (at except) (one value)")
-                    except (Exception, psycopg2.DatabaseError) as error:
-                        logging.error(e)
-                        logging.error("Element error")
-                        logging.error(error)
-                        logging.error(traceback.format_exc())
-                        pass
+                for it, tpl in enumerate(data):
+                    tpls.append(tpl)
+                    if ((it + 1) % 10) == 0:
+                        try:
+                            execute_values(pgsql_cursor, insert_query, tpls)
+                            logging.info(
+                                "inserted values succes ! (at except) (chunk of 10)"
+                            )
+                            tpls = []
+
+                        except:
+                            for e in tpls:
+                                try:
+                                    execute_values(pgsql_cursor, insert_query, e)
+                                    logging.info(
+                                        "inserted values succes ! (at except) (one value)"
+                                    )
+                                except (Exception, psycopg2.DatabaseError) as error:
+                                    logging.error(e)
+                                    logging.error("Element error")
+                                    logging.error(error)
+                                    logging.error(traceback.format_exc())
+                                    pass
+                                    # sys.exit(1)
+                try:
+                    execute_values(pgsql_cursor, insert_query, tpls)
+                    logging.info("inserted values succes ! (at except) (rest values)")
+                except:
+                    for e in tpls:
+                        try:
+                            execute_values(pgsql_cursor, insert_query, e)
+                            logging.info(
+                                "inserted values succes ! (at except) (one value)"
+                            )
+                        except (Exception, psycopg2.DatabaseError) as error:
+                            logging.error(e)
+                            logging.error("Element error")
+                            logging.error(error)
+                            logging.error(traceback.format_exc())
+                            pass
 
         pgsql_cursor.close()
         self.conn.commit()
