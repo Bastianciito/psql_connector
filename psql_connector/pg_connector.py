@@ -46,6 +46,14 @@ class PgConnector:
             """To create a conection first init the object with the following params .... """
         )
 
+    def paser_credentials_to_psycopg(self):
+
+        return f"""user={self.credentials['PGUSER']} 
+                    password={self.credentials['PGPASSWORD']} 
+                    host={self.credentials['PGHOST']} 
+                    port={self.credentials['PGPORT']} 
+                    database={self.credentials['PGDATABASE']}"""
+
     def parse_credentials(self):
         if len(self.credentials.keys()) != 0:
             intersection_condition = set(self.default_credentials.keys()).intersection(
@@ -72,7 +80,7 @@ class PgConnector:
 
         if self.credentials is not None:
             try:
-                self.conn = psycopg2.connect(**self.credentials)
+                self.conn = psycopg2.connect(self.paser_credentials_to_psycopg())
                 self.conn.autocommit = True
                 logging.info("connected to postgresql !")
             except (Exception, psycopg2.DatabaseError) as error:
@@ -90,7 +98,7 @@ class PgConnector:
         if self.credentials is not None:
             try:
                 self.engine = sa.create_engine(
-                    f"postgresql+psycopg2://{self.credentials['user']}:{self.credentials['password']}@{self.credentials['host']}:{self.credentials['port']}/{self.credentials['database']}"
+                    f"postgresql+psycopg2://{self.credentials['PGUSER']}:{self.credentials['PGPASSWORD']}@{self.credentials['PGHOST']}:{self.credentials['PGPORT']}/{self.credentials['PGDATABASE']}"
                 )
                 self.engine.begin()
             except:
